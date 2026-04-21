@@ -1,0 +1,58 @@
+[
+  {
+    "user_id": "u_north_admin",
+    "tenant_id": "t_broker_north",
+    "name": "Laura Admin",
+    "role": "admin",
+    "email": "laura.admin@brokernorth.test"
+  },
+  {
+    "user_id": "u_north_manager",
+    "tenant_id": "t_broker_north",
+    "name": "Marcos Manager",
+    "role": "manager",
+    "email": "marcos.manager@brokernorth.test"
+  },
+  {
+    "user_id": "u_north_agent_1",
+    "tenant_id": "t_broker_north",
+    "name": "Ana Agent",
+    "role": "agent",
+    "email": "ana.agent@brokernorth.test"
+  },
+  {
+    "user_id": "u_north_agent_2",
+    "tenant_id": "t_broker_north",
+    "name": "Pablo Agent",
+    "role": "agent",
+    "email": "pablo.agent@brokernorth.test"
+  },
+  {
+    "user_id": "u_east_admin",
+    "tenant_id": "t_broker_east",
+    "name": "Nuria Admin",
+    "role": "admin",
+    "email": "nuria.admin@brokereast.test"
+  },
+  {
+    "user_id": "u_east_manager",
+    "tenant_id": "t_broker_east",
+    "name": "Sergi Manager",
+    "role": "manager",
+    "email": "sergi.manager@brokereast.test"
+  },
+  {
+    "user_id": "u_east_agent_1",
+    "tenant_id": "t_broker_east",
+    "name": "Clara Agent",
+    "role": "agent",
+    "email": "clara.agent@brokereast.test"
+  },
+  {
+    "user_id": "u_east_agent_2",
+    "tenant_id": "t_broker_east",
+    "name": "David Agent",
+    "role": "agent",
+    "email": "david.agent@brokereast.test"
+  }
+]

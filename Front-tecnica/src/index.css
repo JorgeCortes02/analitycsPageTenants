@@ -1,0 +1,223 @@
+:root {
+  --primary: #2563eb;
+  --bg: #f8fafc;
+  --white: #ffffff;
+  --border: #e2e8f0;
+}
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: var(--bg);
+  color: #1e293b;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  background: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+.card {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+th {
+  text-align: left;
+  padding: 12px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.masked {
+  color: #94a3b8;
+  font-style: italic;
+}
+.risk-CRITICAL {
+  border-left: 4px solid #ef4444;
+  background: #fef2f2;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+}
+.risk-WARNING {
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+}
+/* RiskPanel.css */
+.risk-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.risk-card {
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease;
+}
+
+/* Estado CRITICAL (Rojo) */
+.risk-card.CRITICAL {
+  background-color: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.risk-badge.CRITICAL {
+  background-color: #fca5a5;
+  color: #991b1b;
+}
+
+/* Estado HIGH (Amarillo) */
+.risk-card.HIGH {
+  background-color: #fffbeb;
+  border-color: #fcd34d;
+}
+
+.risk-badge.HIGH {
+  background-color: #fcd34d;
+  color: #92400e;
+}
+
+/* Detalles internos */
+.risk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.risk-name {
+  font-size: 1.1rem;
+  color: #1e293b;
+  font-weight: bold;
+}
+
+.risk-badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  borderRadius: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.risk-stats p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.risk-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.reason-tag {
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+/* StatsCards.css */
+.stats-container {
+  margin-bottom: 20px;
+}
+
+.stats-title {
+  margin-bottom: 10px;
+  color: #64748b;
+  font-weight: normal;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* Estilo base de las tarjetas */
+.stat-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #1e293b;
+}
+
+/* Variantes de color por borde */
+.border-blue   { border-left: 4px solid #2563eb; }
+.border-red    { border-left: 4px solid #ef4444; }
+.border-green  { border-left: 4px solid #10b981; }
+.border-orange { border-left: 4px solid #f59e0b; }
+.valor-destacado {
+  font-family: 'Courier New', Courier, monospace; /* O una fuente más de datos */
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.status-bad {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+/* Responsive: si la pantalla es pequeña, se ponen en 2 columnas o 1 */
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}
