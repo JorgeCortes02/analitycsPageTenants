@@ -8,6 +8,19 @@ El proyecto resuelve de forma integrada los dos desafíos propuestos:
 
 ---
 
+## 🚀 Ejecución del Proyecto
+
+### Requisitos
+* Node.js v18.11+
+* npm
+
+### 1. Instalación
+En ambos proyectos (back y front) se debera hacer un npm install para instalar dependencias.
+
+Para levantar el backend se debera hacer un node server.js en la carpeta Back-tecnica/backend.
+Para levantar el front se debera hacer un npm run dev en la carpeta contenedora del proyexto Front-tecnica
+
+
 ## 🏗️ Arquitectura de la Solución
 
 ### 1. Opción A: Gestión Multi-Tenant y Seguridad (RBAC)
@@ -38,21 +51,9 @@ Esta sección implementa una infraestructura de inteligencia de negocio (BI) dis
 * **Diagnóstico del estado de la salud del tenant:** Basado en umbrales de negocio predefinidos, el sistema genera diagnósticos textuales (ej: "Crítico: Pérdida Neta", "Baja: Potencial de Venta") para facilitar la toma de decisiones sin necesidad de análisis técnico previo.
 
 
-### 🤖 Optimización para IA (AI-Ready)
+### 🤖 Optimización para IA 
 
 El esquema de datos devuelto por el servidor incluye un objeto `summary` diseñado específicamente para ser consumido por agentes de IA:
 * **Evita Alucinaciones:** Al entregar cálculos ya procesados en el backend, la IA no necesita realizar operaciones matemáticas, eliminando errores de precisión.
 * **Contexto Ejecutivo:** Proporciona conclusiones estructuradas que permiten a un modelo de lenguaje generar informes de gestión coherentes y recomendaciones estratégicas de forma inmediata.
-
-## 🚀 Ejecución del Proyecto
-
-### Requisitos
-* Node.js v18.11+
-* npm
-
-### 1. Instalación
-En ambos proyectos (back y front) se debera hacer un npm intall para instalar dependencias.
-
-Para levantar el backend se debera hacer un node server.js
-Para levantar el front se debera hacer un npm run dev
 
