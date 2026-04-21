@@ -82,7 +82,7 @@ export default function ProductAnalyticsTable({ productData }) {
           <p>
             El estado de salud global es <strong>{summary.tenant_health}</strong>. 
             {summary.worst_performing_type && (
-              <span> Atención: El ramo <strong>{summary.worst_performing_type.name}</strong> es el menos rentable con un ratio de {summary.worst_performing_type.ratio}.</span>
+              <span> Atención: El segmento <strong>{summary.worst_performing_type.name}</strong> es el menos rentable con un ratio de {summary.worst_performing_type.ratio}.</span>
             )}
           </p>
         </div>

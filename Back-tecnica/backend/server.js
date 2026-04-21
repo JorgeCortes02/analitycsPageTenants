@@ -15,11 +15,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Función auxiliar para leer los JSON
 const loadData = (file) => JSON.parse(fs.readFileSync(path.join(__dirname, `./data/${file}.json`)));
 
-// --- MIDDLEWARE DE AUTENTICACIÓN ---
-// Identifica al usuario por el header 'x-user-id'
+
 const authMiddleware = (req, res, next) => {
     const userId = req.headers['x-user-id'];
     const users = loadData('users');
@@ -31,17 +29,15 @@ const authMiddleware = (req, res, next) => {
     next();
 };
 
-// --- RUTAS PÚBLICAS (Solo para el selector del Frontend) ---
+
 
 app.get('/api/auth/available-users', (req, res) => {
-    // Devuelve todos los usuarios para poder "simular" el login en la interfaz
+
     const users = loadData('users');
     res.json(users);
 });
 
-// --- RUTAS PROTEGIDAS (Requieren x-user-id) ---
 
-// 1. Clientes visibles (con enmascaramiento para Managers y filtro para Agentes)
 app.get('/api/clients', authMiddleware, (req, res) => {
     const clients = loadData('clients');
     const result = getVisibleClients(req.currentUser, clients);
@@ -51,9 +47,9 @@ app.get('/api/clients', authMiddleware, (req, res) => {
 
 
 
-// 5. Resumen analítico del tenant (Basado solo en lo que el usuario puede ver)
+
 app.get('/api/analytics', authMiddleware, (req, res) => {
-    // Para el análisis, primero obtenemos los datos que el usuario tiene permitidos
+   
     const allClients = loadData('clients');
     const allPolicies = loadData('policies');
     const allClaims = loadData('claims');
@@ -75,7 +71,7 @@ app.get('/api/risk', authMiddleware, (req, res) => {
         const allPolicies = loadData('policies');
         const allClaims = loadData('claims');
 
-        // USAMOS las funciones directamente porque las importamos con { } arriba
+       
         const visibleClients = getVisibleClients(req.currentUser, allClients);
         
         const result = getHighRiskElements(
@@ -105,22 +101,22 @@ app.get('/api/analytics/product', authMiddleware, (req, res) => {
     const allPolicies = loadData('policies') || [];
     const allClaims = loadData('claims') || [];
 
-    // 2. FILTRADO POR TENANT (Aislamiento total)
+
     // Solo extraemos lo que pertenece al usuario logueado
     const tenantClients = allClients.filter(c => c.tenant_id === user.tenant_id);
     const tenantPolicies = allPolicies.filter(p => p.tenant_id === user.tenant_id);
     const tenantClaims = allClaims.filter(c => c.tenant_id === user.tenant_id);
 
-    // 3. CÁLCULO DE MÉTRICAS AVANZADAS
+   
     // Ahora enviamos los datos filtrados a la función de la Opción B
     const productMetrics = getProductAnalytics(tenantPolicies, tenantClaims, tenantClients);
 
-    // 4. RESPUESTA ESTRUCTURADA
+    
     res.json({
       success: true,
-      role: user.role, // Útil para que el front sepa qué etiquetas mostrar
+      role: user.role, 
       tenant: user.tenant_id,
-      ...productMetrics // Expandimos el objeto que devuelve la función (metrics, summary, etc.)
+      ...productMetrics 
     });
 
   } catch (error) {

@@ -21,9 +21,8 @@ const getVisibleClients = (user, allClients) => {
   }
 };
 
-/**
- * Filtra pólizas y siniestros basándose en la visibilidad del cliente.
- * Esto asegura que un Agente no vea pólizas de clientes que no son suyos.
+/*
+  Filtra pólizas y siniestros basándose en la visibilidad del cliente.
  */
 const getVisibleRelatedData = (user, dataArray, visibleClientIds) => {
   // Solo devolvemos datos que pertenezcan a los clientes que el usuario ya puede ver
@@ -34,13 +33,16 @@ const getVisibleRelatedData = (user, dataArray, visibleClientIds) => {
   );
 };
 
+/*
+ Obtenemos analiticas filtradas por user, estas no son las que hablan del tenant en general
+ */
 const getTenantAnalytics = (user, visiblePolicies, visibleClaims) => {
   const activePolicies = visiblePolicies.filter((p) => p.status === "active");
 
   return {
     roleScope: user.role === "agent" ? "Personal Portfolio" : "Global Tenant",
     metrics: {
-      // Dentro de logic.js, cambia las sumas por esto:
+     
       totalPremium: activePolicies.reduce(
         (acc, p) => acc + (Number(p.annual_premium) || 0),
         0,
@@ -57,7 +59,9 @@ const getTenantAnalytics = (user, visiblePolicies, visibleClaims) => {
   };
 };
 
-
+/*
+Extraemos a aquellos clientes que tienen una situacion de riesgo
+ */
 
 const getHighRiskElements = (
   user,
@@ -78,26 +82,26 @@ const getHighRiskElements = (
       let riskLevel = "STABLE";
       let reasons = [];
 
-      // --- PRIORIDAD 1: CRITICAL (Rojo) ---
-      // Caso A: Gasto mayor que ingreso
+      
+      // Gasto mayor que ingreso
       if (totalClaimed > totalPremium && totalClaimed > 0) {
         riskLevel = "CRITICAL";
         reasons.push("Gasto mayor que Ingreso");
       } 
-      // Caso B: Score de sensibilidad muy alto (Peligro de fraude/seguridad)
+      //Score de sensibilidad muy alto (Peligro de fraude/seguridad)
       else if (Number(client.sensitive_score) > 90) { 
         riskLevel = "CRITICAL";
         reasons.push("Perfil de Seguridad Crítico");
       }
 
-      // --- PRIORIDAD 2: HIGH (Amarillo) ---
-      // Caso C: Siniestralidad entre el 75% y el 100%
+      
+      //Siniestralidad entre el 75% y el 100%
       else if (totalClaimed >= (totalPremium * 0.75)) {
         riskLevel = "HIGH";
         reasons.push("Siniestralidad elevada (>75%)");
       }
       
-      // Caso D: Score de sensibilidad medio-alto
+      //Score de sensibilidad medio-alto
       else if (Number(client.sensitive_score) > 70) {
         riskLevel = "HIGH";
         reasons.push("Atención: Score de sensibilidad elevado");
@@ -114,9 +118,9 @@ const getHighRiskElements = (
     .filter((r) => r.riskLevel !== "STABLE"); 
 };
 
-/**
- * CAPA ANALÍTICA DE PRODUCTO (OPCIÓN B) - Filtrada por Tenant
- * Esta función recibe los datos ya filtrados por el Tenant del usuario desde el servidor.
+/*
+ CAPA ANALÍTICA DE PRODUCTO (OPCIÓN B) - Filtrada por Tenant
+ Esta función recibe los datos ya filtrados por el Tenant del usuario desde el servidor.
  */
 
 const getProductAnalytics = (tenantPolicies, tenantClaims, tenantClients) => {
@@ -124,10 +128,13 @@ const getProductAnalytics = (tenantPolicies, tenantClaims, tenantClients) => {
   const totalPremium = activePolicies.reduce((acc, p) => acc + (Number(p.annual_premium) || 0), 0);
   const totalClaimsCost = tenantClaims.reduce((acc, c) => acc + (Number(c.amount) || 0), 0);
 
-  // --- KPIs PRINCIPALES ---
+  //Calculamos los ingresos/gastos
   const lossRatio = totalPremium > 0 ? (totalClaimsCost / totalPremium) * 100 : 0;
+
+  //Calculamos la cantidad de polizas por cliente 
   const crossSell = tenantClients.length > 0 ? (tenantPolicies.length / tenantClients.length) : 0;
   
+  //Calculamos los dias de media que se tarda en cerrar una incidencia
   const closedClaims = tenantClaims.filter(c => c.status === 'closed' && c.closed_at);
   const avgSLA = closedClaims.length > 0 
     ? (closedClaims.reduce((acc, c) => acc + Math.ceil(Math.abs(new Date(c.closed_at) - new Date(c.opened_at)) / (1000 * 60 * 60 * 24)), 0) / closedClaims.length)
@@ -135,9 +142,9 @@ const getProductAnalytics = (tenantPolicies, tenantClaims, tenantClients) => {
 
   const frequency = activePolicies.length > 0 ? (tenantClaims.length / activePolicies.length) * 100 : 0;
 
-  // --- 🎯 CORRECCIÓN: ANÁLISIS POR RAMO (policy_type) ---
+  //Reducimos las polizas activas y sumamos lo que se paga por ellas y el costo de las incidencias de las mismas agrupandolo por grupos
   const typeStats = activePolicies.reduce((acc, policy) => {
-    // CAMBIO CLAVE: Usamos policy.policy_type en lugar de policy.type
+    
     const type = policy.policy_type || 'Otros'; 
     
     if (!acc[type]) acc[type] = { premium: 0, claims: 0, count: 0 };
@@ -145,13 +152,12 @@ const getProductAnalytics = (tenantPolicies, tenantClaims, tenantClients) => {
     acc[type].premium += Number(policy.annual_premium) || 0;
     acc[type].count += 1;
 
-    // Siniestros vinculados a este policy_id
     const policyClaims = tenantClaims.filter(c => c.policy_id === policy.policy_id);
     acc[type].claims += policyClaims.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
     return acc;
   }, {});
-
+//Calculamos el % en base a los datos de la función anterior.
   const profitabilityByType = Object.keys(typeStats).map(name => {
     const p = typeStats[name].premium;
     const c = typeStats[name].claims;
