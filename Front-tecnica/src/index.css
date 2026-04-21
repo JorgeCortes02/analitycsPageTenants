@@ -194,7 +194,77 @@ td {
   font-weight: bold;
   color: #1e293b;
 }
+.segments-analysis {
+  margin-top: 30px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
 
+.section-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  letter-spacing: 0.025em;
+}
+
+.segments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.segment-card {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.segment-name {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.segment-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.text-danger { color: #ef4444; }
+.text-success { color: #22c55e; }
+
+.progress-bar-bg {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Insight Card mejorada */
+.health-critical { border-left: 4px solid #ef4444; background: #fef2f2; }
+.health-warning { border-left: 4px solid #f59e0b; background: #fffbeb; }
+.health-healthy { border-left: 4px solid #22c55e; background: #f0fdf4; }
+
+.health-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  background: #334155;
+  color: white;
+}
 /* Variantes de color por borde */
 .border-blue   { border-left: 4px solid #2563eb; }
 .border-red    { border-left: 4px solid #ef4444; }

@@ -32,7 +32,8 @@ const [productAnalytics, setProductAnalytics] = useState(null);
       
       // Seteamos el nuevo estado para la tabla de producto
       // Asumiendo que definiste: const [productAnalytics, setProductAnalytics] = useState(null);
-      setProductAnalytics(productData.success ? productData.data : null);
+    
+setProductAnalytics(productData.success ? productData : null);
     })
     .catch(err => console.error("Error cargando datos:", err));
   }, [user]);

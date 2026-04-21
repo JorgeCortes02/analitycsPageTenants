@@ -94,31 +94,41 @@ app.get('/api/risk', authMiddleware, (req, res) => {
 
 
 
+// server.js
+
 app.get('/api/analytics/product', authMiddleware, (req, res) => {
   try {
-    const user = req.currentUser; // El middleware nos da el usuario logueado
+    const user = req.currentUser; 
 
-    // 1. Cargar datos crudos
-    const allClients = loadData('clients');
-    const allPolicies = loadData('policies');
-    const allClaims = loadData('claims');
+    // 1. Carga de datos (con fallback a array vacío para evitar errores de .filter)
+    const allClients = loadData('clients') || [];
+    const allPolicies = loadData('policies') || [];
+    const allClaims = loadData('claims') || [];
 
-    // 2. FILTRAR POR TENANT (Seguridad de datos)
+    // 2. FILTRADO POR TENANT (Aislamiento total)
+    // Solo extraemos lo que pertenece al usuario logueado
     const tenantClients = allClients.filter(c => c.tenant_id === user.tenant_id);
     const tenantPolicies = allPolicies.filter(p => p.tenant_id === user.tenant_id);
     const tenantClaims = allClaims.filter(c => c.tenant_id === user.tenant_id);
 
-    // 3. Calcular métricas SOLO para este tenant
+    // 3. CÁLCULO DE MÉTRICAS AVANZADAS
+    // Ahora enviamos los datos filtrados a la función de la Opción B
     const productMetrics = getProductAnalytics(tenantPolicies, tenantClaims, tenantClients);
 
+    // 4. RESPUESTA ESTRUCTURADA
     res.json({
       success: true,
-      data: productMetrics,
-      tenant: user.tenant_id 
+      role: user.role, // Útil para que el front sepa qué etiquetas mostrar
+      tenant: user.tenant_id,
+      ...productMetrics // Expandimos el objeto que devuelve la función (metrics, summary, etc.)
     });
+
   } catch (error) {
-    console.error("Error en analíticas de producto:", error);
-    res.status(500).json({ success: false, message: "Error al calcular métricas" });
+    console.error("❌ Error en analíticas de producto:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error interno al procesar KPIs de negocio" 
+    });
   }
 });
 

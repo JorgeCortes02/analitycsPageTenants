@@ -114,45 +114,104 @@ const getHighRiskElements = (
     .filter((r) => r.riskLevel !== "STABLE"); 
 };
 
+/**
+ * CAPA ANALÍTICA DE PRODUCTO (OPCIÓN B) - Filtrada por Tenant
+ * Esta función recibe los datos ya filtrados por el Tenant del usuario desde el servidor.
+ */
+
 const getProductAnalytics = (tenantPolicies, tenantClaims, tenantClients) => {
   const activePolicies = tenantPolicies.filter(p => p.status === 'active');
   const totalPremium = activePolicies.reduce((acc, p) => acc + (Number(p.annual_premium) || 0), 0);
-  const totalClaims = tenantClaims.reduce((acc, c) => acc + (Number(c.amount) || 0), 0);
+  const totalClaimsCost = tenantClaims.reduce((acc, c) => acc + (Number(c.amount) || 0), 0);
 
-  // Cálculos de KPIs
-  const lossRatio = totalPremium > 0 ? (totalClaims / totalPremium) * 100 : 0;
-  const avgTicket = activePolicies.length > 0 ? (totalPremium / activePolicies.length) : 0;
+  // --- KPIs PRINCIPALES ---
+  const lossRatio = totalPremium > 0 ? (totalClaimsCost / totalPremium) * 100 : 0;
+  const crossSell = tenantClients.length > 0 ? (tenantPolicies.length / tenantClients.length) : 0;
+  
+  const closedClaims = tenantClaims.filter(c => c.status === 'closed' && c.closed_at);
+  const avgSLA = closedClaims.length > 0 
+    ? (closedClaims.reduce((acc, c) => acc + Math.ceil(Math.abs(new Date(c.closed_at) - new Date(c.opened_at)) / (1000 * 60 * 60 * 24)), 0) / closedClaims.length)
+    : 0;
+
+  const frequency = activePolicies.length > 0 ? (tenantClaims.length / activePolicies.length) * 100 : 0;
+
+  // --- 🎯 CORRECCIÓN: ANÁLISIS POR RAMO (policy_type) ---
+  const typeStats = activePolicies.reduce((acc, policy) => {
+    // CAMBIO CLAVE: Usamos policy.policy_type en lugar de policy.type
+    const type = policy.policy_type || 'Otros'; 
+    
+    if (!acc[type]) acc[type] = { premium: 0, claims: 0, count: 0 };
+
+    acc[type].premium += Number(policy.annual_premium) || 0;
+    acc[type].count += 1;
+
+    // Siniestros vinculados a este policy_id
+    const policyClaims = tenantClaims.filter(c => c.policy_id === policy.policy_id);
+    acc[type].claims += policyClaims.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+
+    return acc;
+  }, {});
+
+  const profitabilityByType = Object.keys(typeStats).map(name => {
+    const p = typeStats[name].premium;
+    const c = typeStats[name].claims;
+    const ratio = p > 0 ? (c / p) * 100 : 0;
+    
+    return {
+      name: name.toUpperCase(),
+      ratio: ratio.toFixed(1) + "%",
+      rawRatio: ratio,
+      count: typeStats[name].count
+    };
+  });
 
   return {
     metrics: [
       {
         kpi: "Eficiencia de Cartera (Loss Ratio)",
         valor: lossRatio.toFixed(2) + "%",
-        diagnostico: lossRatio > 80 ? "Crítico: Revisar Siniestralidad" : "Saludable",
-        meta: "< 60%"
+        diagnostico: lossRatio > 100 ? "Crítico: Pérdida Neta" : lossRatio > 60 ? "Aviso: Margen Estrecho" : "Saludable",
+        meta: "< 60%",
+        contexto: "Balance global de ingresos vs gastos por siniestros."
       },
       {
-        kpi: "Valor Medio Póliza (Ticket Promedio)",
-        valor: avgTicket.toFixed(2) + "€",
-        diagnostico: avgTicket > 700 ? "Segmento Premium" : "Segmento Estándar",
-        meta: "> 750€"
+        kpi: "Velocidad de Respuesta (SLA)",
+        valor: avgSLA > 0 ? `${avgSLA.toFixed(1)} días` : "S/D",
+        diagnostico: avgSLA > 12 ? "Lento: Revisar Operativa" : "Eficiente",
+        meta: "< 12 días",
+        contexto: "Tiempo promedio de cierre de siniestros."
+      },
+      {
+        kpi: "Fidelización (Venta Cruzada)",
+        valor: crossSell.toFixed(2) + " pzs/cli",
+        diagnostico: crossSell < 1.8 ? "Baja: Potencial de Venta" : "Alta: Cartera Sólida",
+        meta: "> 1.8",
+        contexto: "Promedio de pólizas por cada cliente."
       },
       {
         kpi: "Ratio de Frecuencia",
-        valor: activePolicies.length > 0 ? ((tenantClaims.length / activePolicies.length) * 100).toFixed(1) + "%" : "0%",
-        diagnostico: "Incidencia de siniestros por póliza",
-        meta: "10%"
+        valor: frequency.toFixed(1) + "%",
+        diagnostico: frequency > 20 ? "Alta Siniestralidad" : "Normal",
+        meta: "< 15%",
+        contexto: "Siniestros declarados por cada 100 pólizas."
       },
       {
-        kpi: "Volumen de Negocio (GWP)",
-        valor: totalPremium.toLocaleString() + "€",
-        diagnostico: "Primas totales activas",
-        meta: "Crecimiento Sostenido"
+        kpi: "Valor Medio Póliza (Ticket)",
+        valor: (totalPremium / (activePolicies.length || 1)).toFixed(2) + "€",
+        diagnostico: "Posicionamiento de Precio",
+        meta: "> 750€",
+        contexto: "Importe medio de la prima anual."
       }
-    ]
+    ],
+    summary: {
+      tenant_health: lossRatio > 90 ? "CRITICAL" : lossRatio > 60 ? "WARNING" : "HEALTHY",
+      total_active_premium: totalPremium,
+      total_claims_cost: totalClaimsCost,
+      worst_performing_type: profitabilityByType.sort((a,b) => b.rawRatio - a.rawRatio)[0],
+      profitabilityByType
+    }
   };
 };
-
 module.exports = {
   getVisibleClients,
   getVisibleRelatedData,
